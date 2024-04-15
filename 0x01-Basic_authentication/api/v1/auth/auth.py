@@ -23,8 +23,17 @@ class Auth:
 
         # Check if the path in excluded_paths
         for excluded_path in excluded_paths:
-            if syntax_path == excluded_path:
-                return False
+            # Check if the excluded path ends with (*)
+            if excluded_path.endswith('*'):
+                # remove (*) from excluded_path
+                excluded_path_without_wildcard = excluded_path[:-1]
+                # Check if path starts with excluded_path (excluding *)
+                if syntax_path.startswith(excluded_path_without_wildcard):
+                    return False
+            else:
+                # Check if the path is exactly the same as the excluded path
+                syntax_path == excluded_path:
+                    return False
 
         # if the excluded_paths not match
         return True
