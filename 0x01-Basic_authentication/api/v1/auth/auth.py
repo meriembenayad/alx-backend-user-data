@@ -32,7 +32,7 @@ class Auth:
                     return False
             else:
                 # Check if the path is exactly the same as the excluded path
-                syntax_path == excluded_path:
+                if syntax_path == excluded_path:
                     return False
 
         # if the excluded_paths not match
