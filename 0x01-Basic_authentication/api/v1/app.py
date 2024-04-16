@@ -19,10 +19,10 @@ CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 
 
 auth = None
-if os.getenv('AUTH_TYPE') == 'auth':
-    auth = Auth()
-elif os.getenv('AUTH_TYPE') == 'basic_auth':
+if os.getenv('AUTH_TYPE') == 'basic_auth':
     auth = BasicAuth()
+else:
+    auth = Auth()
 
 
 @app.before_request
@@ -31,16 +31,20 @@ def before_request_func():
     if auth is None:
         return
 
-    if not auth.require_auth(request.path, ['/api/v1/status/',
-                                            '/api/v1/unauthorized/',
-                                            '/api/v1/forbidden/']):
-        return
+    excluded_paths = [
+        '/api/v1/status/',
+        '/api/v1/unauthorized/',
+        '/api/v1/forbidden/'
+    ]
 
-    if auth.authorization_header(request) is None:
-        abort(401)
+    if auth.require_auth(request.path, excluded_paths):
+        auth_header = auth.authorization_header(request)
+        user = auth.current_user(request)
+        if auth_header is None:
+            abort(401)
 
-    if auth.current_user(request) is None:
-        abort(403)
+        if user is None:
+            abort(403)
 
 
 @app.errorhandler(404)
@@ -51,13 +55,13 @@ def not_found(error) -> str:
 
 
 @app.errorhandler(401)
-def unauthorized(error):
+def unauthorized(error) -> str:
     """ Unauthorized handler """
     return jsonify({"error": "Unauthorized"}), 401
 
 
 @app.errorhandler(403)
-def forbidden(error):
+def forbidden(error) -> str:
     """ Forbidden handler """
     return jsonify({"error": "Forbidden"}), 403
 
