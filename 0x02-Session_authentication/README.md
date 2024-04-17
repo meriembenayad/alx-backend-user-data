@@ -373,3 +373,51 @@ bob@dylan:~$
 **Files:**
 - `api/v1/auth/auth.py`
 </details>
+
+<details>
+<summary>5. Before request</summary>
+
+Update the `@app.before_request` method in `api/v1/app.py`:
+
+- Add the URL path `/api/v1/auth_session/login/` in the list of excluded paths of the method `require_auth` - this route doesn’t exist yet but it should be accessible outside authentication
+- If `auth.authorization_header(request)` and `auth.session_cookie(request)` return `None`, `abort(401)`
+
+**In the first terminal:**
+
+```sh
+bob@dylan:~$ API_HOST=0.0.0.0 API_PORT=5000 AUTH_TYPE=session_auth SESSION_NAME=_my_session_id python3 -m api.v1.app
+ * Running on http://0.0.0.0:5000/ (Press CTRL+C to quit)
+....
+```
+
+**In a second terminal:**
+
+```sh
+bob@dylan:~$ curl "http://0.0.0.0:5000/api/v1/status"
+{
+  "status": "OK"
+}
+bob@dylan:~$
+bob@dylan:~$ curl "http://0.0.0.0:5000/api/v1/auth_session/login" # not found but not "blocked" by an authentication system
+{
+  "error": "Not found"
+}
+bob@dylan:~$
+bob@dylan:~$ curl "http://0.0.0.0:5000/api/v1/users/me"
+{
+  "error": "Unauthorized"
+}
+bob@dylan:~$ curl "http://0.0.0.0:5000/api/v1/users/me" -H "Authorization: Basic Ym9iQGhidG4uaW86SDBsYmVydG9uU2Nob29sOTgh" # Won't work because the environment variable AUTH_TYPE is equal to "session_auth"
+{
+  "error": "Forbidden"
+}
+bob@dylan:~$
+bob@dylan:~$ curl "http://0.0.0.0:5000/api/v1/users/me" --cookie "_my_session_id=5535d4d7-3d77-4d06-8281-495dc3acfe76" # Won't work because no user is linked to this Session ID
+{
+  "error": "Forbidden"
+}
+bob@dylan:~$
+```
+**Files:**
+- `api/v1/app.py`
+</details>
