@@ -2,12 +2,15 @@
 """ 3. Auth Class """
 from flask import request
 from typing import List, TypeVar
+# 4. Session cookie
+from os import getenv
 
 User = TypeVar('User')
 
 
 class Auth:
     """ Class Auth for managing API authentication """
+
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
         """ require authentication """
         # if path is None
@@ -49,3 +52,13 @@ class Auth:
     def current_user(self, request=None) -> TypeVar('User'):
         """ Get the current user """
         return None
+
+    def session_cookie(self, request=None):
+        """
+            4. Session cookie
+            Returns a cookie value from a request
+        """
+        if request is None:
+            return None
+
+        return request.cookies.get(getenv('SESSION_NAME'))
