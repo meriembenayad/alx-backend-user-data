@@ -13,6 +13,8 @@ from api.v1.auth.auth import Auth
 from api.v1.auth.basic_auth import BasicAuth
 # 02: 1. Empty session
 from api.v1.auth.session_auth import SessionAuth
+# 02: 9. Expiration
+from api.v1.auth.session_exp_auth import SessionExpAuth
 
 
 app = Flask(__name__)
@@ -27,6 +29,8 @@ elif os.getenv('AUTH_TYPE') == 'auth':
     auth = Auth()
 elif os.getenv('AUTH_TYPE') == 'session_auth':
     auth = SessionAuth()
+elif os.getenv('AUTH_TYPE') == 'session_exp_auth':
+    auth = SessionExpAuth()
 
 
 @app.errorhandler(404)
