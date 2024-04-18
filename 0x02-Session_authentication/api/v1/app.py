@@ -29,31 +29,6 @@ elif os.getenv('AUTH_TYPE') == 'session_auth':
     auth = SessionAuth()
 
 
-@app.before_request
-def before_request_func():
-    """ handler for before_request """
-    if auth is None:
-        return
-
-    excluded_paths = [
-        '/api/v1/status/',
-        '/api/v1/unauthorized/',
-        '/api/v1/forbidden/',
-        '/api/v1/auth_session/login/'
-    ]
-
-    if auth.require_auth(request.path, excluded_paths):
-        auth_header = auth.authorization_header(request)
-        user = auth.current_user(request)
-        if auth_header is None and auth.session_cookie(request) is None:
-            abort(401)
-
-        if user is None:
-            abort(403)
-
-    request.user_current = auth.current_user(request)
-
-
 @app.errorhandler(404)
 def not_found(error) -> str:
     """ Not found handler
@@ -71,6 +46,31 @@ def unauthorized(error) -> str:
 def forbidden(error) -> str:
     """ Forbidden handler """
     return jsonify({"error": "Forbidden"}), 403
+
+
+@app.before_request
+def before_request_func():
+    """ handler for before_request """
+    if auth is None:
+        return
+
+    excluded_paths = [
+        '/api/v1/status/',
+        '/api/v1/unauthorized/',
+        '/api/v1/forbidden/',
+        '/api/v1/auth_session/login/'
+    ]
+
+    if auth.require_auth(request.path, excluded_paths):
+        auth_header = auth.authorization_header(request)
+        if auth_header is None and auth.session_cookie(request) is None:
+            abort(401)
+
+        user = auth.current_user(request)
+        if user is None:
+            abort(403)
+
+    request.current_user = auth.current_user(request)
 
 
 if __name__ == "__main__":
