@@ -15,7 +15,8 @@ from api.v1.auth.basic_auth import BasicAuth
 from api.v1.auth.session_auth import SessionAuth
 # 02: 9. Expiration
 from api.v1.auth.session_exp_auth import SessionExpAuth
-
+# 02: 10. Sessions in database
+from api.v1.auth.session_db_auth import SessionDBAuth
 
 app = Flask(__name__)
 app.register_blueprint(app_views)
@@ -31,6 +32,8 @@ elif os.getenv('AUTH_TYPE') == 'session_auth':
     auth = SessionAuth()
 elif os.getenv('AUTH_TYPE') == 'session_exp_auth':
     auth = SessionExpAuth()
+elif os.getenv('AUTH_TYPE') == 'session_db_auth':
+    auth = SessionDBAuth()
 
 
 @app.errorhandler(404)
