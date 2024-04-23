@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """ 4. Hash password """
 from user import User
-from bcrypt import hashpw, gensalt
+from bcrypt import hashpw, gensalt, checkpw
 # 5. Register user
 from db import DB
 from sqlalchemy.orm.exc import NoResultFound
@@ -48,3 +48,16 @@ class Auth:
         user = self._db.add_user(email, decoded_password)
 
         return user
+
+    def valid_login(self, email: str, password: str) -> bool:
+        """ 8. Credentials validation """
+        try:
+            user = self._db.find_user_by(email=email)
+            # encode password & hashed_password in database
+            hash_password = user.hashed_password.encode('utf-8')
+            pwd = password.encode('utf-8')
+            # check password
+            checked_password = checkpw(pwd, hash_password)
+            return checked_password
+        except NoResultFound:
+            return False
