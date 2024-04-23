@@ -5,6 +5,8 @@ from bcrypt import hashpw, gensalt, checkpw
 # 5. Register user
 from db import DB
 from sqlalchemy.orm.exc import NoResultFound
+# 9. Generate UUIDs
+from uuid import uuid4
 
 
 def _hash_password(password: str) -> bytes:
@@ -19,6 +21,13 @@ def _hash_password(password: str) -> bytes:
     hashed_password = hashpw(password.encode(), salt)
 
     return hashed_password
+
+
+def _generate_uuid(self) -> str:
+    """ 9. Generate uuid """
+    id = str(uuid4())
+    return id
+
 
 # 5. Register user
 
