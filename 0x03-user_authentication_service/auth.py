@@ -2,6 +2,9 @@
 """ 4. Hash password """
 from user import User
 from bcrypt import hashpw, gensalt
+# 5. Register user
+from db import DB
+from sqlalchemy.orm.exc import NoResultFound
 
 
 def _hash_password(password: str) -> bytes:
@@ -16,3 +19,32 @@ def _hash_password(password: str) -> bytes:
     hashed_password = hashpw(password.encode(), salt)
 
     return hashed_password
+
+# 5. Register user
+
+
+class Auth:
+    """Auth class to interact with the authentication database.
+    """
+
+    def __init__(self):
+        self._db = DB()
+
+    def register_user(self, email: str, password: str) -> User:
+        """
+        5. Register user
+        """
+        # Check if user already exists
+        try:
+            user = self._db.find_user_by(email=email)
+            raise ValueError(f'User {email} already exists')
+        except NoResultFound:
+            pass
+
+        hashed_password = _hash_password(password=password)
+        # decode hashed_password
+        decoded_password = hashed_password.decode('utf-8')
+        # Add new user to database
+        user = self._db.add_user(email, decoded_password)
+
+        return user
