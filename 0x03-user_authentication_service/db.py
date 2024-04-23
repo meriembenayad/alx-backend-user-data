@@ -53,12 +53,11 @@ class DB:
         """
         try:
             user = self._session.query(User).filter_by(**kwargs).one()
+            return user
         except NoResultFound:
             raise NoResultFound('Not found')
         except InvalidRequestError:
             raise InvalidRequestError('Invalid')
-        else:
-            return user
 
     def update_user(self, user_id: int, **kwargs) -> None:
         """
@@ -71,12 +70,10 @@ class DB:
 
         # Check if attribute are valid
         for key in kwargs:
-            if not hasattr(user, key):
+            if hasattr(user, key):
+                setattr(user, key, kwargs[key])
+            else:
                 raise ValueError(f'Attribute {key} doesn\'t exist on User')
-
-        # Update the Attribute
-        for key, value in kwargs.items():
-            setattr(user, key, value)
 
         # Commit the changes
         self._session.commit()
