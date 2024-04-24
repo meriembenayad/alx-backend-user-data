@@ -99,7 +99,8 @@ def update_password() -> str:
         return jsonify({"message": "New password is required"}), 403
 
     try:
-        AUTH.update_password(reset_token=reset_token, password=new_password)
+        token = AUTH.get_reset_password_token(email=email)
+        AUTH.update_password(reset_token=token, password=new_password)
         return jsonify({"email": email, "message": "Password updated"}), 200
     except ValueError:
         abort(403)
