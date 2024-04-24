@@ -7,6 +7,8 @@ from db import DB
 from sqlalchemy.orm.exc import NoResultFound
 # 9. Generate UUIDs
 from uuid import uuid4
+# 12. Find user by session ID
+from typing import Union, TypeVar
 
 
 def _hash_password(password: str) -> bytes:
@@ -80,3 +82,13 @@ class Auth:
             return session_id
         except NoResultFound:
             return 'None'
+
+    def get_user_from_session_id(self,
+                                 session_id: str
+                                 ) -> Union[TypeVar('User'), None]:
+        """ 11. Find user by session ID """
+        user = self._db.find_user_by(session_id)
+        if user:
+            return user
+        else:
+            return None
