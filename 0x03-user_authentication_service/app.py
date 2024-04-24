@@ -95,16 +95,11 @@ def update_password() -> str:
     reset_token = request.form.get('reset_token')
     new_password = request.form.get('new_password')
 
-    if not email or not reset_token or not new_password:
-        return jsonify({
-            "message": "email, reset_token and new_password are required"
-        }), 403
-
     try:
         AUTH.update_password(reset_token=reset_token, password=new_password)
-        return jsonify({"email": email, "message": "Password updated"}), 200
-    except ValueError:
         return jsonify({'message': 'Invalid reset_token'}), 403
+    except ValueError:
+        return jsonify({"email": email, "message": "Password updated"}), 200
 
 
 if __name__ == "__main__":
