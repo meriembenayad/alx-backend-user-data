@@ -47,7 +47,7 @@ def profile_logged(session_id: str) -> None:
 def log_out(session_id: str) -> None:
     """ Log out """
     response = requests.delete(f'{URL_BASE}/sessions',
-                             cookies={'session_id': session_id})
+                               cookies={'session_id': session_id})
     assert response.status_code == 200
     assert response.json() == {'message': 'You\'re logged out'}
 
