@@ -3,7 +3,7 @@
 import requests
 
 
-URL_BASE = 'http://0.0.0.0:5000'
+URL_BASE = 'http://localhost:5000'
 
 
 def register_user(email: str, password: str) -> None:
@@ -17,36 +17,39 @@ def register_user(email: str, password: str) -> None:
 def log_in_wrong_password(email: str, password: str) -> None:
     """ Try log in with wrong password """
     response = requests.post(f'{URL_BASE}/sessions',
-                             json={'email': email, 'password': password})
+                             data={'email': email, 'password': password})
     assert response.status_code == 401
 
 
 def log_in(email: str, password: str) -> str:
     """ Log in with correct password """
     response = requests.post(f'{URL_BASE}/sessions',
-                             json={'email': email, 'password': password})
+                             data={'email': email, 'password': password})
     assert response.status_code == 200
+    assert response.json() == {"email": email, "message": "logged in"}
     return response.cookies.get('session_id')
 
 
 def profile_unlogged() -> None:
     """ Try to access the profile without logging in """
     response = requests.get(f'{URL_BASE}/profile')
-    assert response.status_code == 401
+    assert response.status_code == 403
 
 
 def profile_logged(session_id: str) -> None:
     """ Access the profile after logging in """
     response = requests.get(f'{URL_BASE}/profile',
-                            headers={'Authorization': session_id})
+                            cookies={'session_id': session_id})
     assert response.status_code == 200
+    assert response.json() == {"email": EMAIL}
 
 
 def log_out(session_id: str) -> None:
     """ Log out """
-    response = requests.post(f'{URL_BASE}/logout',
-                             headers={'Authorization': session_id})
+    response = requests.delete(f'{URL_BASE}/sessions',
+                             cookies={'session_id': session_id})
     assert response.status_code == 200
+    assert response.json() == {'message': 'You\'re logged out'}
 
 
 def reset_password_token(email: str) -> str:
@@ -59,11 +62,12 @@ def reset_password_token(email: str) -> str:
 
 def update_password(email: str, reset_token: str, new_password: str) -> None:
     """ Update the password """
-    response = requests.post(f'{URL_BASE}/reset_password', json={
+    response = requests.put(f'{URL_BASE}/reset_password', data={
         'email': email,
         'reset_token': reset_token,
         'new_password': new_password})
     assert response.status_code == 200
+    assert response.json() == {"email": email, "message": "Password updated"}
 
 
 EMAIL = "guillaume@holberton.io"
