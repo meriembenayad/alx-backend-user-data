@@ -87,6 +87,9 @@ class Auth:
                                  session_id: str
                                  ) -> Union[TypeVar('User'), None]:
         """ 11. Find user by session ID """
+        if session_id is None:
+            return None
+
         try:
             user = self._db.find_user_by(session_id)
             return user
