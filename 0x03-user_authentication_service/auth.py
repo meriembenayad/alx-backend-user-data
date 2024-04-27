@@ -65,7 +65,8 @@ class Auth:
         try:
             user = self._db.find_user_by(email=email)
             # encode password & hashed_password in database
-            hash_password = user.hashed_password.encode('utf-8')
+
+            hash_password = user.hashed_password
             pwd = password.encode('utf-8')
             # check password
             checked_password = checkpw(pwd, hash_password)
